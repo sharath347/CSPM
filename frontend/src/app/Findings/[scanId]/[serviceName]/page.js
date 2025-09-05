@@ -22,10 +22,6 @@ export default function ServiceFindingsPage() {
 
     const fetchData = async () => {
       try {
-        console.log("Session object:", session);
-        console.log("Scan ID:", scanId);
-        console.log("Service Name:", serviceName);
-
         const userId = session.user;
         const token = session?.id_token;
 
@@ -36,7 +32,6 @@ export default function ServiceFindingsPage() {
           scanId
         );
         setData(result);
-        console.log("Findings API result:", result);
       } catch (err) {
         console.error("Error fetching findings:", err);
       } finally {

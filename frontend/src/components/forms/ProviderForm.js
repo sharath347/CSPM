@@ -34,8 +34,6 @@ const ProviderForm = ({
   // Debug logs for GCP fields
   useEffect(() => {
     if (provider !== "gcp") return;
-    console.log("Project ID:", gcpForm.projectId);
-    console.log("Service Account Key:", gcpForm.serviceAccountKey);
   }, [provider, gcpForm.projectId, gcpForm.serviceAccountKey]);
 
   const handleSubmit = async (e) => {

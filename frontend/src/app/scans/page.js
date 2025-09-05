@@ -203,8 +203,6 @@ export default function ScansPage() {
   const [scansData, setScansData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  console.log(scansData);
-
   useEffect(() => {
     if (status !== "authenticated") return;
 
@@ -244,8 +242,6 @@ export default function ScansPage() {
         return;
       }
 
-      console.log("🗑️ Deleting scan:", scanId);
-
       // Call the delete API
       const response = await deleteScan(session.user, scanId, session.id_token);
 
@@ -255,8 +251,6 @@ export default function ScansPage() {
           ...prev,
           scans: prev.scans.filter((scan) => scan.scan_id !== scanId),
         }));
-
-        console.log("✅ Scan deleted successfully");
         alert("Scan deleted successfully");
       } else {
         console.error(

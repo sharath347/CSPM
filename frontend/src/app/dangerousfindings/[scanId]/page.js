@@ -33,7 +33,6 @@ export default function DangerousFindingsPage() {
 
         const result = await getAllDangerousFindings(userId, scanId, token);
         setData(result);
-        console.log("Dangerous Findings API result:", result);
       } catch (err) {
         console.error("Error fetching dangerous findings:", err);
       } finally {

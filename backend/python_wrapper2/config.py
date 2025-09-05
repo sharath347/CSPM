@@ -14,3 +14,7 @@ KEYCLOAK_CLIENT_SECRET = os.getenv("KEYCLOAK_CLIENT_SECRET", "WRUjvEpmSJW4UMNY9P
 
 # AWS default region
 AWS_DEFAULT_REGION = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
+
+#frontendurl
+Frontend_URL = os.getenv("Frontend_URL", "http://localhost:3000").rstrip("/")
+

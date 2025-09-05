@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { connectAwsService, connectGcpService } from "@/utils/requests";
+import { connectAwsService, connectGcpService, connectAzureService } from "@/utils/requests";
 import { useRouter } from "next/navigation";
 import LogoutButton from "@/components/LogoutButton";
 import { ProviderForm } from "@/components/forms";
@@ -39,9 +39,11 @@ export default function ConnectProvidersPage() {
           formData
         );
       } else if (provider === "azure") {
-        console.log("Azure payload:", formData);
-        // TODO: call connectAzureService(session.user, session.id_token, formData);
-        result = { success: true }; // placeholder
+        result = await connectAzureService(
+          session.user,
+          session.id_token,
+          formData
+        );
       }
 
       // ✅ Navigate only on success

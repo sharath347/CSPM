@@ -13,7 +13,6 @@ const NavBar = ({ scanId }) => {
   const [activeMenu, setActiveMenu] = useState(null);
   const navRef = useRef();
   const { data: session } = useSession();
-  console.log(scanId);
 
   const handleMenuClick = (group) => {
     setActiveMenu((prev) => (prev === group ? null : group));
@@ -39,7 +38,6 @@ const NavBar = ({ scanId }) => {
         if (!response.ok) throw new Error("Failed to fetch service groups");
 
         const data = await response.json();
-        console.log("📦 Service Groups API Response:", data);
         setServiceGroups(data.service_groups || {});
       } catch (error) {
         console.error("❌ Error fetching service groups:", error);

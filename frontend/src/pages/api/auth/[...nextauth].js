@@ -17,10 +17,8 @@ export default NextAuth({
       if (account) {
         token.id_token = account.id_token;
       }
-      console.log(token.id_token);
       const decoded = jwtDecode(token.id_token);
       token.userId = decoded.sub;
-      console.log(token.userId);
       return token;
     },
     async session({ session, token }) {

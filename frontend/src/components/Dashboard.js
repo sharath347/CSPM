@@ -10,9 +10,6 @@ const Dashboard = ({ counts, scanId }) => {
   const total = good + warning + danger;
   const router = useRouter();
 
-  // Debug logs
-  console.log("✅ Dashboard counts:", { good, warning, danger, total });
-
   const handleActiveClick = () => {
     router.push(`/dangerousfindings/${scanId}`);
   };

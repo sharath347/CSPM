@@ -133,7 +133,7 @@ def run_scoutsuite_aws(user_id, aws_access_key, aws_secret_key, region="us-east-
         if disabled_services:
             scan_status = "partial"
             scan_message = f"Scan completed with some disabled/missing services"
-        elif result.returncode != 0:
+        elif result.returncode != 200:
             scan_status = "failed"
             categorized_message = categorize_scoutsuite_error(result.stderr)
 
@@ -288,7 +288,7 @@ def run_scoutsuite_gcp(user_id, project_id, gcp_key_path):
         if disabled_apis:
             scan_status = "partial"
             scan_message = f"Scan completed with some disabled APIs"
-        elif result.returncode != 0:
+        elif result.returncode != 200:
             scan_status = "failed"
             categorized_message = categorize_scoutsuite_error(result.stderr)
             
@@ -358,7 +358,6 @@ def run_scoutsuite_gcp(user_id, project_id, gcp_key_path):
     except Exception as e:
         return {"success": False, "status": "failed", "message": str(e)}, 500
 
-
 def run_scoutsuite_azure(user_id, subscription_id, tenant_id, client_id, client_secret):
     counter_result = get_user_counter_from_keycloak(user_id)
     if not counter_result["success"]:
@@ -374,6 +373,7 @@ def run_scoutsuite_azure(user_id, subscription_id, tenant_id, client_id, client_
             "status": "failed",
             "message": "User has no remaining scans. Please top up your counter."
         }, 400  # Forbidden because user cannot perform scan
+
     scan_timestamp = int(time.time() * 1000)
     created_time = datetime.utcnow().replace(tzinfo=timezone.utc)
     output_dir = f"output/{user_id}/{scan_timestamp}"
@@ -390,7 +390,7 @@ def run_scoutsuite_azure(user_id, subscription_id, tenant_id, client_id, client_
             "--tenant", tenant_id,
             "--client-id", client_id,
             "--client-secret", client_secret,
-            "--subscriptions", subscription_id,  # ✅ correct flag
+            "--subscriptions", subscription_id,
             "--no-browser",
             "--report-dir", output_dir
         ]
@@ -403,19 +403,24 @@ def run_scoutsuite_azure(user_id, subscription_id, tenant_id, client_id, client_
         )
 
         disabled_services = []
+        graph_errors = []
 
         # Regex for disabled/unused services
         service_pattern = re.compile(r'([\w\s\(\)]+) (is not enabled|is disabled|has not been used)')
         url_pattern = re.compile(r'https://portal\.azure\.com/#blade/[\w\./?=&-]+')
 
+        # Regex for Graph API 403 errors
+        graph_pattern = re.compile(r'Failed to query Microsoft Graph endpoint "([^"]+)"\: status code 403')
+
         lines = result.stderr.splitlines()
         i = 0
         while i < len(lines):
             line = lines[i]
+
+            # Match disabled services
             service_match = service_pattern.search(line)
             if service_match:
                 service_name = service_match.group(1).strip()
-                # Look ahead for URL
                 url = None
                 for j in range(i, min(i + 5, len(lines))):
                     url_match = url_pattern.search(lines[j])
@@ -423,42 +428,43 @@ def run_scoutsuite_azure(user_id, subscription_id, tenant_id, client_id, client_
                         url = url_match.group(0)
                         break
                 disabled_services.append({"service": service_name, "url": url})
+
+            # Match Graph API 403 errors
+            graph_match = graph_pattern.search(line)
+            if graph_match:
+                graph_errors.append(graph_match.group(1))
+
             i += 1
-
+        
         # Deduplicate
-        seen = set()
-        unique_disabled = []
-        for entry in disabled_services:
-            key = (entry["service"], entry["url"])
-            if key not in seen:
-                seen.add(key)
-                unique_disabled.append(entry)
-        disabled_services = unique_disabled
+        disabled_services = [dict(t) for t in {tuple(d.items()) for d in disabled_services}]
+        graph_errors = list(set(graph_errors))
 
+        
         # Determine scan status
-        if disabled_services:
+        if disabled_services or graph_errors:
             scan_status = "partial"
-            scan_message = "Scan completed with some disabled services"
-        elif result.returncode != 0:
+            scan_message = "Scan completed with some issues"
+        elif result.returncode != 200:
             scan_status = "failed"
             categorized_message = categorize_scoutsuite_error(result.stderr)
-            
+
             user_output_dir = f"output/{user_id}"
             if os.path.exists(user_output_dir):
                 shutil.rmtree(user_output_dir)
                 print(f"Deleted all scans for user: {user_output_dir}")
 
-            # Print for logs
             print("=== SCOUTSUITE ERROR ===")
             print("Status:", scan_status)
             print("STDERR:", result.stderr)
+            print("Return code:", result.returncode)
             print("Categorized:", categorized_message)
 
             return {
                 "success": False,
                 "status": "failed",
                 "message": categorized_message,
-                "raw_error": result.stderr  # optional, for debugging
+                "raw_error": result.stderr
             }, 500
         else:
             scan_status = "success"
@@ -486,9 +492,10 @@ def run_scoutsuite_azure(user_id, subscription_id, tenant_id, client_id, client_
             "cloud_provider": "Azure",
             "data": json_data,
             "disabled_services": disabled_services,
+            "graph_errors": graph_errors,
             "status": scan_status,
             "created_at": created_time,
-            "user_id":user_id
+            "user_id": user_id
         }
 
         collection.insert_one(scan_record)
@@ -502,7 +509,8 @@ def run_scoutsuite_azure(user_id, subscription_id, tenant_id, client_id, client_
             "success": True,
             "status": scan_status,
             "message": scan_message,
-            "disabled_services": disabled_services
+            "disabled_services": disabled_services,
+            "graph_errors": graph_errors
         }, 200
 
     except Exception as e:
