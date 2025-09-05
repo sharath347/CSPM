@@ -37,8 +37,6 @@ def decrement_user_counter_in_keycloak(user_id):
         # Get current counter, default to 0 if not set
         current_counter = int(attributes.get("counter", [0])[0])
 
-        print("current_counter:",current_counter)
-
         if current_counter <= 0:
             return {"success": False, "message": "User has no remaining scans."}
 
