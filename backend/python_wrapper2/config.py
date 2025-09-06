@@ -10,6 +10,8 @@ KEYCLOAK_URL = os.getenv("KEYCLOAK_URL", "http://localhost:9000/")
 KEYCLOAK_REALM = os.getenv("KEYCLOAK_REALM", "cloud")
 KEYCLOAK_CLIENT_ID = os.getenv("KEYCLOAK_CLIENT_ID", "cloud")
 KEYCLOAK_CLIENT_SECRET = os.getenv("KEYCLOAK_CLIENT_SECRET", "WRUjvEpmSJW4UMNY9PNHurIy3FWIyxTM")
+Admin_UserName = os.getenv("Admin_UserName","admin")
+Admin_Password=os.getenv("Admin_Password","admin")
 
 
 # AWS default region

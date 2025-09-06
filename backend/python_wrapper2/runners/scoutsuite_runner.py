@@ -135,7 +135,7 @@ def run_scoutsuite_aws(user_id, aws_access_key, aws_secret_key, region="us-east-
             if disabled_services:
                 scan_status = "partial"
                 scan_message = "Scan completed with some disabled/missing services"
-            elif result.returncode != 0:  # <-- fixed check (should be 0 for success)
+            elif result.returncode != 200:
                 scan_status = "failed"
                 categorized_message = categorize_scoutsuite_error(result.stderr)
 
@@ -271,7 +271,7 @@ def run_scoutsuite_gcp(user_id, project_id, gcp_key_path):
             if disabled_apis:
                 scan_status = "partial"
                 scan_message = "Scan completed with some disabled APIs"
-            elif result.returncode != 0:  # <-- fixed check
+            elif result.returncode != 200:
                 scan_status = "failed"
                 categorized_message = categorize_scoutsuite_error(result.stderr)
 
@@ -415,7 +415,7 @@ def run_scoutsuite_azure(user_id, subscription_id, tenant_id, client_id, client_
             if disabled_services or graph_errors:
                 scan_status = "partial"
                 scan_message = "Scan completed with some issues"
-            elif result.returncode != 0:  # <-- fixed, subprocess returns 0 on success
+            elif result.returncode != 200:
                 scan_status = "failed"
                 categorized_message = categorize_scoutsuite_error(result.stderr)
 

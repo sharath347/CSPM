@@ -1,26 +1,22 @@
+import requests
 from keycloak import KeycloakAdmin
 from functools import wraps
 from flask import request, jsonify
-import requests
-from config import KEYCLOAK_URL, KEYCLOAK_REALM, KEYCLOAK_CLIENT_ID, KEYCLOAK_CLIENT_SECRET
+from utils.helpers import handle_error
+from config import KEYCLOAK_URL, KEYCLOAK_REALM, KEYCLOAK_CLIENT_ID, KEYCLOAK_CLIENT_SECRET,Admin_UserName,Admin_Password
 
 def get_keycloak_admin():
     return KeycloakAdmin(
         server_url=KEYCLOAK_URL,       # e.g. "http://localhost:8080/"
-        username="admin",              # master realm admin username
-        password="admin",# master realm admin password
-        realm_name="cloud",           # authenticate against master realm
+        username=Admin_UserName,              # master realm admin username
+        password=Admin_Password,# master realm admin password
+        realm_name=KEYCLOAK_REALM,           # authenticate against master realm
         verify=True
     )
 
 
 def decrement_user_counter_in_keycloak(user_id):
-    """
-    Decrement the 'counter' attribute of a Keycloak user by 1 using user_id.
-    Returns a standard success/failure response.
-    """
     admin = get_keycloak_admin()
-    users = admin.get_users({})   # Empty dict fetches all users
     
     try:
         # Fetch user details directly
@@ -58,13 +54,14 @@ def decrement_user_counter_in_keycloak(user_id):
         return {"success": True, "message": "Counter decremented successfully", "counter": new_counter}
 
     except Exception as e:
-        return {"success": False, "message": f"Error updating user: {str(e)}"}
+        return handle_error(
+            e,
+            location="decrement_user_counter_in_keycloak",
+            status_code=500,
+            user_message="Unable to update user counter. Please try again later."
+        )
 
 def get_user_counter_from_keycloak(user_id):
-    """
-    Fetch the current 'counter' attribute of a Keycloak user using user_id.
-    Returns a standard success/failure response with the counter value.
-    """
     admin = get_keycloak_admin()
     
     try:
@@ -89,7 +86,12 @@ def get_user_counter_from_keycloak(user_id):
         }
 
     except Exception as e:
-        return {"success": False, "message": f"Error fetching user counter: {str(e)}"}
+        return handle_error(
+            e,
+            location="decrement_user_counter_in_keycloak",
+            status_code=500,
+            user_message="Unable to fetch user counter."
+        )
 
 
 def introspect_token(token):
