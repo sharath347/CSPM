@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import NavBar from "@/components/NavBar";
@@ -29,6 +29,8 @@ import {VirtualMachineImages,VirtualMachineSnapshots,LogAlerts,CustomRolesReport
 export default function FindingDetailsPage() {
   const { data: session, status } = useSession();
   const { scanId, serviceName, desc } = useParams();
+  const searchParams = useSearchParams();
+  const description = searchParams.get('description');
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -36,23 +38,23 @@ export default function FindingDetailsPage() {
 
   useEffect(() => {
     if (status !== "authenticated") return;
-    console.log("Calling this function");
     const fetchDetails = async () => {
       try {
         setLoading(true);
         setError("");
         const userId = session.user;
         const token = session?.id_token;
-        const description = decodeURIComponent(desc);
+        const findingKey = decodeURIComponent(desc);
         const res = await getFindingDetails(
           userId,
           scanId,
           serviceName,
           token,
-          description
+          findingKey
         );
         setData(res);
       } catch (e) {
+        console.error("Error fetching finding details:", e);
         setError(e.message || "Failed to load details");
       } finally {
         setLoading(false);
@@ -72,7 +74,8 @@ export default function FindingDetailsPage() {
     </pre>
   );
 
-  const description = decodeURIComponent(desc);
+  const findingKey = decodeURIComponent(desc);
+  const findingDescription = description || findingKey;
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -88,9 +91,8 @@ export default function FindingDetailsPage() {
           </Link>
           <div>
             <h1 className="text-2xl text-gray-300 font-bold mb-1">
-              {serviceName.toUpperCase()} Finding Details
+              {findingDescription}
             </h1>
-            <p className="text-gray-500 text-sm">{description}</p>
           </div>
         </div>
 
@@ -104,7 +106,7 @@ export default function FindingDetailsPage() {
       {!loading && (!data || !data.rendered_data || data.rendered_data.length === 0) && (
         <div className="bg-gray-900 text-gray-400 rounded-2xl shadow-md mb-4 p-4">
           <h3 className="text-lg font-semibold border-b border-gray-700 pb-2">
-          {description}
+          {findingDescription}
           </h3>
         </div>
       )}

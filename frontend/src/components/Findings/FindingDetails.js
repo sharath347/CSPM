@@ -1,6 +1,7 @@
 "use client";
 
 import { ExternalLink } from "lucide-react";
+import sanitizeHtml from "@/utils/sanitizeHtml";
 
 const FindingDetails = ({
   rationale = "",
@@ -40,7 +41,10 @@ const FindingDetails = ({
         <h4 className="font-semibold text-sm uppercase tracking-wider text-gray-300 mb-2">
           Rationale
         </h4>
-        <p className="text-gray-500 leading-relaxed">{rationale}</p>
+        <div
+          className="rich-text text-gray-300 leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(rationale) }}
+        />
       </div>
 
       {remediation && (
@@ -48,7 +52,10 @@ const FindingDetails = ({
           <h4 className="font-semibold text-sm uppercase tracking-wider text-gray-300 mb-2">
             Remediation
           </h4>
-          <p className="text-gray-300 leading-relaxed">{remediation}</p>
+          <div
+            className="rich-text text-gray-300 leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(remediation) }}
+          />
         </div>
       )}
     </div>

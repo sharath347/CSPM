@@ -1,2 +1,38 @@
 @import "tailwindcss";
 
+/* Scoped rich text styling for rendered rationale/remediation */
+.rich-text {
+  font-size: 0.95rem;
+}
+.rich-text p {
+  margin: 0.25rem 0 0.75rem 0;
+}
+.rich-text ul,
+.rich-text ol {
+  margin: 0.25rem 0 0.75rem 1.25rem;
+}
+.rich-text li {
+  margin: 0.25rem 0;
+}
+.rich-text a {
+  color: #60a5fa; /* tailwind text-blue-400 */
+  text-decoration: underline;
+}
+.rich-text a:hover {
+  color: #93c5fd; /* text-blue-300 */
+}
+.rich-text samp,
+.rich-text code,
+.rich-text pre {
+  background-color: rgba(255, 255, 255, 0.06);
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+.rich-text pre {
+  padding: 0.5rem 0.75rem;
+  white-space: pre-wrap;
+}
+.rich-text br {
+  line-height: 1.2;
+}

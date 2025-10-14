@@ -46,7 +46,7 @@ const FindingCard = ({
               <Link
                 href={`/Findings/${scanId}/${serviceName}/details/${encodeURIComponent(
                   finding.key
-                )}`}
+                )}?description=${encodeURIComponent(description)}`}
                 className="font-semibold text-white leading-relaxed text-blue-300 hover:underline"
               >
                 {description}
