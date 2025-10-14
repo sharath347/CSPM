@@ -7,7 +7,7 @@ SCAN_COLLECTION = os.getenv("SCAN_COLLECTION", "scan_results")
 
 # Keycloak
 KEYCLOAK_URL = os.getenv("KEYCLOAK_URL", "http://localhost:9000/")
-KEYCLOAK_REALM = os.getenv("KEYCLOAK_REALM", "cloud")
+KEYCLOAK_REALM = os.getenv("KEYCLOAK_REALM", "cspm")
 KEYCLOAK_CLIENT_ID = os.getenv("KEYCLOAK_CLIENT_ID", "cloud")
 KEYCLOAK_CLIENT_SECRET = os.getenv("KEYCLOAK_CLIENT_SECRET", "WRUjvEpmSJW4UMNY9PNHurIy3FWIyxTM")
 Admin_UserName = os.getenv("Admin_UserName","admin")
