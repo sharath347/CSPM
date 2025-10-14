@@ -221,6 +221,29 @@ const getServiceFindings = async (userId, token, serviceName, scanId) => {
   return data;
 };
 
+// Get specific finding details for a service (POST with description)
+const getFindingDetails = async (userId, scanId, serviceName, token, description) => {
+  if (!userId) throw new Error("User ID is required");
+  if (!token) throw new Error("Token is required");
+  if (!serviceName) throw new Error("Service name is required");
+  if (!scanId) throw new Error("Scan ID is required");
+  if (!description) throw new Error("Description is required");
+
+  const data = await apiFetch(
+    `${BASE_URL}/scans/get_finding_details/${userId}/${scanId}/${serviceName}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ description }),
+    }
+  );
+
+  return data;
+};
+
 // Get Findings Count by Level
 const getFindingsCountByLevel = async (userId, scanId, token) => {
   if (!userId) throw new Error("User ID is required");
@@ -318,6 +341,7 @@ const deleteScan = async (userId, scanId, token) => {
 export {
   getServiceData,
   getServiceFindings,
+  getFindingDetails,
   connectAwsService,
   connectGcpService,
   getFindingsCountByLevel,

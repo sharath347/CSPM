@@ -11,6 +11,15 @@ import NotLoggedIn from "@/components/NotLoggedIn";
 import { Shield, AlertTriangle, XCircle } from "lucide-react";
 import { FindingsAccordion } from "@/components/Findings";
 
+// Helper: group findings by service
+function groupFindingsByService(findingsArray) {
+  return findingsArray.reduce((acc, finding) => {
+    const service = finding.service || "Other"; // fallback if no service field
+    if (!acc[service]) acc[service] = [];
+    acc[service].push(finding);
+    return acc;
+  }, {});
+}
 export default function DangerousFindingsPage() {
   const { data: session, status } = useSession();
   const params = useParams();
@@ -96,9 +105,19 @@ export default function DangerousFindingsPage() {
     );
   }
 
+  // const findingsArray = data.dangerous_findings
+  //   ? Object.entries(data.dangerous_findings)
+  //   : [];
+  // Convert dangerous_findings object into array
   const findingsArray = data.dangerous_findings
-    ? Object.entries(data.dangerous_findings)
+    ? Object.entries(data.dangerous_findings).map(([key, value]) => ({
+        key,
+        ...value,
+      }))
     : [];
+
+  // Group by service
+  const groupedFindings = groupFindingsByService(findingsArray);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -121,14 +140,23 @@ export default function DangerousFindingsPage() {
           </div>
         </div>
 
-        {/* Findings List */}
+        {/* Findings List
         <FindingsAccordion
           findings={findingsArray.map(([key, value]) => ({
             key,
             ...value,
           }))}
           showService={true}
-        />
+        /> */}
+        {/* Grouped Findings by Service */}
+        {Object.entries(groupedFindings).map(([service, findings]) => (
+          <div key={service} className="mb-10">
+            <h2 className="text-xl font-semibold text-blue-400 mb-4">
+              {service.toUpperCase()}
+            </h2>
+            <FindingsAccordion findings={findings} showService={false} />
+          </div>
+        ))}
       </main>
     </div>
   );

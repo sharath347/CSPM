@@ -4,10 +4,11 @@ from runners.scoutsuite_runner import run_scoutsuite_aws,run_scoutsuite_gcp,run_
 from utils.helpers import handle_error
 from pymongo import MongoClient
 import time,os
-import tempfile
+import tempfile,json
 from datetime import timezone, timedelta
 from config import MONGO_URI, MONGO_DB, SCAN_COLLECTION
 from authentication.keycloak_auth import decrement_user_counter_in_keycloak
+from .arn_routes import update_dom
 # Reuse MongoDB client
 mongo_client = MongoClient(MONGO_URI)
 collection = mongo_client[MONGO_DB][SCAN_COLLECTION]
@@ -21,9 +22,9 @@ def get_summary(user_id, scan_id):
         result = collection.find_one({"user_id": user_id, "scan_id": int(scan_id)})
         if not result:
             return handle_error(Exception("Scan not found"), "get_summary", 404,"Scan not found")
-
         summary = result.get("data", {}).get("last_run", {}).get("summary", {})
-        return jsonify({"success": True, "summary": summary}), 200
+        account_id = result.get("data", {}).get("account_id")
+        return jsonify({"success": True, "summary": summary,"accountId":account_id}), 200
     except Exception as e:
         return handle_error(e, "get_summary")
 
@@ -43,6 +44,37 @@ def get_findings(user_id, scan_id, service_name):
     except Exception as e:
         return handle_error(e, "get_findings")
 
+@scan_bp.route("/get_finding_details/<user_id>/<scan_id>/<service_name>", methods=["POST"])
+def get_finding_details(user_id, scan_id, service_name):
+    try:
+        description_query = request.json.get("description")
+        if not description_query:
+            return handle_error(
+                Exception("Description not provided"),
+                "get_finding_details",
+                400,
+                "Description query param is required"
+            )
+
+        # fetch scan result
+        result = collection.find_one({"user_id": user_id, "scan_id": int(scan_id)})
+        if not result:
+            return handle_error(Exception("Scan not found"),
+                                "get_finding_details", 404,
+                                "Scan not found")
+        service = result.get("data", {})
+        path_string = f"services.{service_name}.findings.{description_query}.items"
+        rendered_templates = update_dom(path_string,service)
+        print("rendered_templates",rendered_templates)
+        with open("rendered_templates.json", "w") as f:
+            json.dump(rendered_templates, f, indent=2)
+        return jsonify({
+            "success": True,
+            "rendered_data": rendered_templates
+        }), 200
+
+    except Exception as e:
+        return handle_error(e, "get_finding_details")
 
 @scan_bp.route("/get_all_dangerous_findings/<user_id>/<scan_id>", methods=["GET"])
 @token_required
@@ -198,42 +230,6 @@ def run_scan_gcp():
 
     except Exception as e:
         return handle_error(e, "run_scan_gcp")
-
-# @scan_bp.route("/run-scoutsuite-gcp", methods=["POST"])
-# @token_required
-# def run_scan_gcp():
-#     try:
-#         user_id = request.form.get("user_id")
-#         project_id = request.form.get("project_id")
-#         gcp_file = request.files.get("file")  # the uploaded .json service account file
-
-#         if not project_id:
-#             return handle_error(ValueError("GCP Project ID required"), "run_scan_gcp", 400,"GCP Project ID required")
-#         if not gcp_file:
-#             return handle_error(ValueError("GCP service account JSON file required"), "run_scan_gcp", 400,"GCP Project ID required")
-
-#         # Save the uploaded file temporarily
-#         file_path = f"output/{user_id}/gcp_key_{int(time.time())}.json"
-#         os.makedirs(os.path.dirname(file_path), exist_ok=True)
-#         gcp_file.save(file_path)
-
-#         result, status = run_scoutsuite_gcp(user_id, project_id, file_path)
-
-#         # Only decrement counter if scan was successful
-#         if result.get("success", False):
-#             counter_response = decrement_user_counter_in_keycloak(user_id)
-#             if not counter_response["success"]:
-#                 # Optional: log this, but don't block the scan result
-#                 print(f"Warning: {counter_response['message']}")
-
-#         # Delete the uploaded key file after scan
-#         if os.path.exists(file_path):
-#             os.remove(file_path)
-
-#         return jsonify(result), status
-
-#     except Exception as e:
-#         return handle_error(e, "run_scan_gcp")
 
 @scan_bp.route("/run-scoutsuite-azure", methods=["POST"])
 @token_required

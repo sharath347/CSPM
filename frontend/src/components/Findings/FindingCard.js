@@ -1,6 +1,8 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import LevelIcon from "./LevelIcon";
 import FindingMetrics from "./FindingMetrics";
 import FindingDetails from "./FindingDetails";
@@ -12,6 +14,7 @@ const FindingCard = ({
   showService = false,
   className = "",
 }) => {
+  const { scanId, serviceName } = useParams();
   const {
     description = "",
     level = "",
@@ -39,9 +42,20 @@ const FindingCard = ({
             checkedItems={checked_items}
           />
           <div className="text-left">
-            <h3 className="font-semibold text-white leading-relaxed">
-              {description}
-            </h3>
+            {level !== "good" && flagged_items > 0 && checked_items > 0 ? (
+              <Link
+                href={`/Findings/${scanId}/${serviceName}/details/${encodeURIComponent(
+                  finding.key
+                )}`}
+                className="font-semibold text-white leading-relaxed text-blue-300 hover:underline"
+              >
+                {description}
+              </Link>
+            ) : (
+              <h3 className="font-semibold text-white leading-relaxed">
+                {description}
+              </h3>
+            )}
           </div>
         </div>
         <ChevronDown

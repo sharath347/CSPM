@@ -15,6 +15,7 @@ export default function Page() {
   const scanId = params.scan; // This will contain the scan ID from the URL
   const [summary, setSummary] = useState(null);
   const [counts, setCounts] = useState(null);
+  const [accountId, setAccountId] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,8 +34,9 @@ export default function Page() {
 
         // 1. Fetch summary for specific scan
         const summaryData = await getServiceData(userId, scanId, token);
-        if (summaryData.success) {
+        if (summaryData && summaryData.success) {
           setSummary(summaryData.summary);
+          setAccountId(summaryData.accountId || summaryData.account_id || null);
         } else {
           console.error("Failed to fetch summary:", summaryData.message);
           setSummary(null);
@@ -42,7 +44,7 @@ export default function Page() {
 
         // 2. Fetch counts by level for specific scan
         const countsData = await getFindingsCountByLevel(userId, scanId, token);
-        if (countsData.success) {
+        if (countsData && countsData.success) {
           setCounts(countsData.counts);
         } else {
           console.error("Failed to fetch counts:", countsData.message);
@@ -83,12 +85,12 @@ export default function Page() {
           <>
             {/* Pass real counts instead of mock */}
             {counts ? (
-              <Dashboard counts={counts} scanId={scanId} />
+              <Dashboard counts={counts} scanId={scanId} accountId={accountId} />
             ) : (
               <p className="text-gray-500">No dashboard data available</p>
             )}
 
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-3 mb-6">
               <h1 className="text-2xl font-semibold">Services</h1>
             </div>
 

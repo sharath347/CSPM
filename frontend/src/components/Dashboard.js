@@ -5,7 +5,7 @@ import { CheckCircle, AlertTriangle, XCircle } from "lucide-react";
 import DashboardCard from "./DashboardCard";
 import { useRouter } from "next/navigation";
 
-const Dashboard = ({ counts, scanId }) => {
+const Dashboard = ({ counts, scanId, accountId }) => {
   const { good = 0, warning = 0, danger = 0 } = counts || {};
   const total = good + warning + danger;
   const router = useRouter();
@@ -16,7 +16,14 @@ const Dashboard = ({ counts, scanId }) => {
 
   return (
     <section className="mb-10">
-      <h1 className="text-3xl font-bold mb-1">Dashboard</h1>
+      <div className="flex items-center gap-3 mb-1">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        {accountId && (
+          <span className="text-blue-300 text-sm font-mono bg-blue-950 border border-blue-700 rounded px-3 py-1">
+            for the account {accountId}
+          </span>
+        )}
+      </div>
       <p className="text-gray-400 mb-6">
         Monitor your cloud infrastructure services and resources
       </p>
@@ -61,7 +68,7 @@ const Dashboard = ({ counts, scanId }) => {
         {/* Active Findings - Clickable */}
         <DashboardCard
           title="Active Findings"
-          description="Critical security issues detected"
+          description="Dangerous Findings detected"
           icon={<ShieldAlert className="text-white" />}
           onClick={handleActiveClick}
           className="cursor-pointer hover:border-red-600 hover:border-opacity-80 hover:border-2 transition-all duration-200"
@@ -69,7 +76,7 @@ const Dashboard = ({ counts, scanId }) => {
           <div className="flex items-center gap-2 mt-4">
             <XCircle size={20} className="text-red-500" />
             <span className="text-sm text-gray-400">
-              Click to view all critical findings
+              Click to view all Dangerous Findings
             </span>
           </div>
         </DashboardCard>
