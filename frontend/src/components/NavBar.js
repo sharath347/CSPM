@@ -66,8 +66,16 @@ const NavBar = ({ scanId }) => {
 
     await signOut({ redirect: false });
 
-    const logoutUrl = `http://localhost:9000/realms/cloud/protocol/openid-connect/logout?id_token_hint=${session.id_token}&post_logout_redirect_uri=http://localhost:3000`;
-    window.location.href = logoutUrl;
+    const baseLogoutUrl = process.env.NEXT_PUBLIC_LOGOUT_URL;
+    if (!baseLogoutUrl) {
+      console.error("Missing NEXT_PUBLIC_LOGOUT_URL env var");
+      return;
+    }
+    const url = new URL(baseLogoutUrl);
+    url.searchParams.set("id_token_hint", session.id_token);
+    const redirectUri = process.env.NEXT_PUBLIC_POST_LOGOUT_REDIRECT_URI;
+    url.searchParams.set("post_logout_redirect_uri", redirectUri);
+    window.location.href = url.toString();
   };
 
   return (
