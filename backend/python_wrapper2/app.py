@@ -4,6 +4,7 @@ from routes.scan_routes import scan_bp
 from routes.user_routes import user_bp
 from routes.arn_routes import arn
 from config import Frontend_URL
+import os
 
 
 app = Flask(__name__)
@@ -17,7 +18,12 @@ app.register_blueprint(arn, url_prefix="/arn")
 
 if __name__ == "__main__":
     print("🚀 Flask API starting...")
-    app.run(debug=True)
+    
+    host = os.getenv("FLASK_HOST", "0.0.0.0")
+    port = int(os.getenv("FLASK_PORT", 5000))
+    debug = os.getenv("FLASK_DEBUG", "false").lower() == "true"
+
+    app.run(host=host, port=port, debug=debug)
 
 
 

@@ -95,7 +95,7 @@ def get_user_counter_from_keycloak(user_id):
 
 
 def introspect_token(token):
-    url = f"{KEYCLOAK_URL}realms/{KEYCLOAK_REALM}/protocol/openid-connect/token/introspect"
+    url = f"{KEYCLOAK_URL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/token/introspect"
     response = requests.post(url, data={
         "token": token,
         "client_id": KEYCLOAK_CLIENT_ID,
