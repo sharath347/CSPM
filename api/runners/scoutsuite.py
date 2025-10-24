@@ -3,16 +3,13 @@ import json
 import re
 import glob
 import time
-import shutil
 import subprocess
 import tempfile
-from pymongo import MongoClient, errors
+from pymongo import MongoClient
 from config import MONGO_URI, MONGO_DB, SCAN_COLLECTION
-from flask import jsonify
-from datetime import datetime, timezone, timedelta
-from zoneinfo import ZoneInfo
+from datetime import datetime, timezone
 from config import MONGO_URI, MONGO_DB, SCAN_COLLECTION
-from authentication.keycloak_auth import get_user_counter_from_keycloak
+from auth.keycloak import get_user_counter_from_keycloak
 
 # Reuse MongoDB client
 mongo_client = MongoClient(MONGO_URI)

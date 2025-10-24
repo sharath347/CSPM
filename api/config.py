@@ -10,13 +10,17 @@ KEYCLOAK_URL = os.getenv("KEYCLOAK_URL", "http://localhost:9000/")
 KEYCLOAK_REALM = os.getenv("KEYCLOAK_REALM", "cspm")
 KEYCLOAK_CLIENT_ID = os.getenv("KEYCLOAK_CLIENT_ID", "cloud")
 KEYCLOAK_CLIENT_SECRET = os.getenv("KEYCLOAK_CLIENT_SECRET", "WRUjvEpmSJW4UMNY9PNHurIy3FWIyxTM")
-Admin_UserName = os.getenv("Admin_UserName","admin")
-Admin_Password=os.getenv("Admin_Password","admin")
+KEYCLOAK_ADMIN_USERNAME = os.getenv("KEYCLOAK_ADMIN_USERNAME","admin")
+KEYCLOAK_ADMIN_PASSWORD=os.getenv("KEYCLOAK_ADMIN_PASSWORD","admin")
 
 
 # AWS default region
 AWS_DEFAULT_REGION = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
 
-#frontendurl
-Frontend_URL = os.getenv("Frontend_URL", "http://localhost:3000").rstrip("/")
+# Frontend URL
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000").rstrip("/")
 
+# Flask API Settings
+FLASK_HOST = os.getenv("FLASK_HOST", "0.0.0.0")
+FLASK_PORT = int(os.getenv("FLASK_PORT", 5000))
+FLASK_DEBUG = os.getenv("FLASK_DEBUG", "false").lower() == "true"

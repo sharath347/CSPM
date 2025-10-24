@@ -2,14 +2,14 @@ import requests
 from keycloak import KeycloakAdmin
 from functools import wraps
 from flask import request, jsonify
-from utils.helpers import handle_error
-from config import KEYCLOAK_URL, KEYCLOAK_REALM, KEYCLOAK_CLIENT_ID, KEYCLOAK_CLIENT_SECRET,Admin_UserName,Admin_Password
+from utils.error import handle_error
+from config import KEYCLOAK_URL, KEYCLOAK_REALM, KEYCLOAK_CLIENT_ID, KEYCLOAK_CLIENT_SECRET,KEYCLOAK_ADMIN_USERNAME,KEYCLOAK_ADMIN_PASSWORD
 
 def get_keycloak_admin():
     return KeycloakAdmin(
         server_url=KEYCLOAK_URL,       # e.g. "http://localhost:8080/"
-        username=Admin_UserName,              # master realm admin username
-        password=Admin_Password,# master realm admin password
+        username=KEYCLOAK_ADMIN_USERNAME,              # master realm admin username
+        password=KEYCLOAK_ADMIN_PASSWORD,# master realm admin password
         realm_name=KEYCLOAK_REALM,           # authenticate against master realm
         verify=True
     )

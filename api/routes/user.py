@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from authentication.keycloak_auth import token_required, update_user_in_keycloak
-from utils.helpers import handle_error
+from auth.keycloak import update_user_in_keycloak
+from utils.error import handle_error
 from jose import jwt
 
 user_bp = Blueprint("user_bp", __name__)
@@ -58,7 +58,7 @@ def update_user():
 
 # from flask import Blueprint, request, jsonify
 # from authentication.keycloak_auth import token_required, update_user_in_keycloak
-# from utils.helpers import handle_error
+# from utils.error import handle_error
 # from jose import jwt
 
 # user_bp = Blueprint("user_bp", __name__)

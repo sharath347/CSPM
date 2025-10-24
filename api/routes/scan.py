@@ -1,14 +1,12 @@
 from flask import Blueprint, request, jsonify
-from authentication.keycloak_auth import token_required
-from runners.scoutsuite_runner import run_scoutsuite_aws,run_scoutsuite_gcp,run_scoutsuite_azure
-from utils.helpers import handle_error
+from auth.keycloak import token_required, decrement_user_counter_in_keycloak
+from runners.scoutsuite import run_scoutsuite_aws,run_scoutsuite_gcp,run_scoutsuite_azure
+from utils.error import handle_error
 from pymongo import MongoClient
-import time,os
 import tempfile,json
 from datetime import timezone, timedelta
 from config import MONGO_URI, MONGO_DB, SCAN_COLLECTION
-from authentication.keycloak_auth import decrement_user_counter_in_keycloak
-from .arn_routes import update_dom
+from .arn import update_dom
 # Reuse MongoDB client
 mongo_client = MongoClient(MONGO_URI)
 collection = mongo_client[MONGO_DB][SCAN_COLLECTION]
