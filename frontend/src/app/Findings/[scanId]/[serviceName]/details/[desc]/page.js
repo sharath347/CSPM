@@ -12,7 +12,11 @@ import {ConfigRegionView,EC2SecurityGroup,EC2RegionalSettings,IAMResourceView,Cr
   VPCSubnet,ACMCertificates,LambdaFunctions,SecretsManagerSecrets,SESIdentities,SNSTopics,SQSQueues,AWSStackdriverLoggingSinks,VPCFlowLogs,VPCDetails,
   CloudFormationStacks,CloudFrontDistributions,CloudTrailTrails,CloudWatchAlarms,CloudWatchMetricFilters,DynamoDBTables,EC2Snapshots,EC2Volumes,
   EC2Images,EC2Instances,ElastiCacheSecurityGroups,ElastiCacheSubnetGroups,ElastiCacheClusters,ElbPolicies,ElbLinkedPolicies,ElbAllRegions,
-  KmsKeysByRegion} from "@/components/aws";
+  KmsKeysByRegion,CloudTrailRegions,ConfigRecorderView,ConfigRuleView,ElastiCacheParameterGroups,ElbLinkedResources,ElbListeners,
+  ELBv2AllRegions,EMRAllRegions,IAMGroup,IAMInlinePolicies,IAMManagedPolicy,IAMManagedPoliciesList,IamRoleView,RDSParameterGroup,
+  RDSSecurityGroup,RDSInstance,RDSSnapshot,RDSSubnetGroup,RedshiftParameterGroup,RedshiftCluster,RedshiftSecurityGroup,
+  RedshiftClusterNode,Route53Domain,Route53HostedZonesByRegion,S3ACLs,S3BucketIAMPolicies,S3Bucket,S3Object,S3PublicAccessBlockConfiguration,
+  VPCPeeringConnectionsList,VPCPeeringConnection} from "@/components/aws";
 
 import {IAMGCPUsers,IAMProjectBindings,IamBindingsSeparationDuties,IamDomains,IamGroups,ProjectsAndServiceAccounts,StackdriverMonitoringAlertPolicy,
   StackdriverLoggingMetric,KmsKeyrings,KubernetesEngineClusters,StackdriverMetrics,StackdriverLoggingSinks,StackdriverMonitoringUptimeChecks,
@@ -115,36 +119,8 @@ export default function FindingDetailsPage() {
         <>
           {data.rendered_data.map((item, idx) => {
 
-
             //aws
-            if (item.template_id === "services.iam.password_policy") { //completed
-              return <PasswordPolicyView key={idx} policy={item.data} />;
-            } 
-            else if (item.template_id === "services.iam.credential_reports") { //completed
-              return <CredentialReportView key={idx} data={item.data} />;
-            } 
-            else if (item.template_id === "services.iam.users") { //completed
-              return <IAMResourceView key={idx} type="users" data={item.data} />;
-            } 
-            else if (item.template_id === "services.ec2.regions.id.vpcs.id.security_groups") { //completed
-              return <EC2SecurityGroup key={idx} data={item.data} />;
-            } 
-            else if (item.template_id === "services.ec2.regions.id.regional_settings") { //completed
-              return <EC2RegionalSettings key={idx} regions={item.data} />
-            } 
-            else if (item.template_id === "services.vpc.regions.id.vpcs.id.subnets") { //completed
-              return <VPCSubnet key={idx} data={item.data} />;
-            } 
-            else if (item.template_id === "services.vpc.regions.id.vpcs.id.network_acls") {  //completed
-              return <VPCNetworkACLsList key={idx} data={item.data} />;
-            } 
-            else if (item.template_id === "services.cloudtrail.regions") { //completed
-              return <CloudTrailTrails key={idx} data={item.data} />;
-            } 
-            else if (item.template_id === "services.config.regions") { //completed
-              return <ConfigRegionView key={idx} data={item.data} />;
-            }
-            else if (item.template_id === "services.acm.regions.id.certificates") {
+            if (item.template_id === "services.acm.regions.id.certificates") {
               return <ACMCertificates key={idx} data={item.data} />;
             } 
             else if (item.template_id === "services.awslambda.regions.id.functions") {
@@ -156,21 +132,33 @@ export default function FindingDetailsPage() {
             else if (item.template_id === "services.cloudfront.distributions") {
               return <CloudFrontDistributions key={idx} data={item.data} />;
             }
-            else if (item.template_id === "services.cloudfront.distributions") {
-              return <CloudFrontDistributions key={idx} data={item.data} />;
+            else if (item.template_id === "services.cloudtrail.regions") {
+              return <CloudTrailRegions key={idx} data={item.data} />;
             }
-            else if (item.template_id === "services.cloudtrail.regions.id.trails") {
+            else if (item.template_id === "services.cloudtrail.regions.id.trails") { //completed
               return <CloudTrailTrails key={idx} data={item.data} />;
-            }
+            } 
             else if (item.template_id === "services.cloudwatch.regions.id.alarms") {
               return <CloudWatchAlarms key={idx} data={item.data} />;
             }
             else if (item.template_id === "services.cloudwatch.regions.id.metric_filters") {
               return <CloudWatchMetricFilters key={idx} data={item.data} />;
             }
+            else if (item.template_id === "services.config.regions") { //completed
+              return <ConfigRegionView key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.config.regions.id.recorders") {
+              return <ConfigRecorderView key={idx} recorder={item.data} />;
+            }
+            else if (item.template_id === "services.config.regions.id.rules") {
+              return <ConfigRuleView key={idx} rule={item.data} />;
+            }
             else if (item.template_id === "services.dynamodb.regions.id.tables") {
               return <DynamoDBTables key={idx} data={item.data} />;
             }
+            else if (item.template_id === "services.ec2.regions.id.regional_settings") { //completed
+              return <EC2RegionalSettings key={idx} regions={item.data} />
+            } 
             else if (item.template_id === "services.ec2.regions.id.snapshots") {
               return <EC2Snapshots key={idx} data={item.data} />;
             }
@@ -182,6 +170,12 @@ export default function FindingDetailsPage() {
             }
             else if (item.template_id === "services.ec2.regions.id.vpcs.id.instances") {
               return <EC2Instances key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.ec2.regions.id.vpcs.id.security_groups") { //completed
+              return <EC2SecurityGroup key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.elasticache.regions.id.parameter_groups") {
+              return <ElastiCacheParameterGroups key={idx} data={item.data} />;
             }
             else if (item.template_id === "services.elasticache.regions.id.security_groups") {
               return <ElastiCacheSecurityGroups key={idx} data={item.data} />;
@@ -198,11 +192,95 @@ export default function FindingDetailsPage() {
             else if (item.template_id === "services.elb.regions.id.vpcs.id.elbs") {
               return <ElbAllRegions key={idx} data={item.data} />;
             }
+            else if (item.template_id === "services.elb.regions.id.vpcs.id.elbs.linked_resources") {
+              return <ElbLinkedResources key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.elb.regions.id.vpcs.id.elbs.listener") {
+              return <ElbListeners key={idx} data={item.data} />;
+            }
             else if (item.template_id === "services.elb.regions.id.vpcsid.elbs.linked_policy") {
               return <ElbLinkedPolicies key={idx} data={item.data} />;
             }
+            else if (item.template_id === "services.elbv2.regions.id.vpcs.id.elbs") {
+              return <ELBv2AllRegions key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.emr.regions.id.vpcs.id.clusters") {
+              return <EMRAllRegions key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.iam.credential_reports") { //completed
+              return <CredentialReportView key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.iam.groups") { //completed
+              return <IAMGroup key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.iam.inline_policies") { //completed
+              return <IAMInlinePolicies key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.iam.managed_policies") { //completed
+              return <IAMManagedPolicy key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.iam.managed_policies_list") { //completed
+              return <IAMManagedPoliciesList key={idx} data={item.data} />;
+            }
+            if (item.template_id === "services.iam.password_policy") { //completed
+              return <PasswordPolicyView key={idx} data={item.data} />;
+            }  
+            else if (item.template_id === "services.iam.users") { //completed
+              return <IAMResourceView key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.iam.roles") { //completed
+              return <IamRoleView key={idx} data={item.data} />;
+            }  
             else if (item.template_id === "services.kms.regions.id.keys") {
               return <KmsKeysByRegion key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.rds.regions.id.parameter_groups") {
+              return <RDSParameterGroup key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.rds.regions.id.security_groups") {
+              return <RDSSecurityGroup key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.rds.regions.id.vpcs.id.instances") {
+              return <RDSInstance key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.rds.regions.id.vpcs.id.snapshots") {
+              return <RDSSnapshot key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.rds.regions.id.vpcs.id.subnet_groups") {
+              return <RDSSubnetGroup key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.redshift.regions.id.parameter_groups") {
+              return <RedshiftParameterGroup key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.redshift.regions.id.vpcs.id.clusters") {
+              return <RedshiftCluster key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.redshift.regions.id.vpcs.id.security_groups") {
+              return <RedshiftSecurityGroup key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.redshift.regions.vpcs.cluster_nodes") {
+              return <RedshiftClusterNode key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.route53.regions.id.domains") {
+              return <Route53Domain key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.route53.regions.id.hosted_zones") {
+              return <Route53HostedZonesByRegion key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.s3.acls") {
+              return <S3ACLs key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.s3.bucket_iam_policies") {
+              return <S3BucketIAMPolicies key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.s3.buckets") {
+              return <S3Bucket key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.s3.buckets.objects") {
+              return <S3Object key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.s3.public_access_block_configuration") {
+              return <S3PublicAccessBlockConfiguration key={idx} data={item.data} />;
             }
             else if (item.template_id === "services.secretsmanager.regions.id.secrets") {
               return <SecretsManagerSecrets key={idx} data={item.data} />;
@@ -221,9 +299,21 @@ export default function FindingDetailsPage() {
             }
             else if (item.template_id === "services.vpc.regions.id.flow_logs") {
               return <VPCFlowLogs key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.vpc.regions.id.vpcs.id.peering_connections") {
+              return <VPCPeeringConnectionsList key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.vpc.regions.id.peering_connections") {
+              return <VPCPeeringConnection key={idx} data={item.data} />;
             } 
             else if (item.template_id === "services.vpc.regions.id.vpcs") {
               return <VPCDetails key={idx} data={item.data} />;
+            } 
+            else if (item.template_id === "services.vpc.regions.id.vpcs.id.network_acls") {  //completed
+              return <VPCNetworkACLsList key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.vpc.regions.id.vpcs.id.subnets") { //completed
+              return <VPCSubnet key={idx} data={item.data} />;
             }
             
             
