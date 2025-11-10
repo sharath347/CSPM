@@ -405,24 +405,15 @@ export default function FindingDetailsPage() {
 
 
             //azure
-            else if (item.template_id === "services.loggingmonitoring.subscriptions.id.log_alerts") { //completed ui done
-              return <LogAlerts key={idx} data={item.data} />;
-            }
-            else if (item.template_id === "services.rbac.subscriptions.id.custom_roles_report") { //completed ui done
-              return <CustomRolesReport key={idx} data={item.data} />;
-            }
-            else if (item.template_id === "services.securitycenter.subscriptions.id.pricings") { //completed ui done
-              return <Pricings key={idx} data={item.data} />;
-            }       
-            else if (item.template_id === "services.aad.policies") { //completed ui done
-              return <AadPolicies key={idx} data={item.data} />;
-            }       
             else if (item.template_id === "services.aad.applications") {
               return <AadApplications key={idx} data={item.data} />;
             }   
             else if (item.template_id === "services.aad.groups") {
               return <AadGroups key={idx} data={item.data} />;
-            } 
+            }
+            else if (item.template_id === "services.aad.policies") { //completed ui done
+              return <AadPolicies key={idx} data={item.data} />;
+            }       
             else if (item.template_id === "services.aad.service_principals") {
               return <AadServicePrincipals key={idx} data={item.data} />;
             }
@@ -437,6 +428,9 @@ export default function FindingDetailsPage() {
             }
             else if (item.template_id === "services.loggingmonitoring.subscriptions.id.diagnostic_settings") {
               return <LoggingMonitoringDiagnostics  key={idx} data={item.data} />;
+            }
+            else if (item.template_id === "services.loggingmonitoring.subscriptions.id.log_alerts") { //completed ui done
+              return <LogAlerts key={idx} data={item.data} />;
             }
             else if (item.template_id === "services.loggingmonitoring.subscriptions.id.log_profiles") {
               return <LoggingMonitoringLogProfiles  key={idx} data={item.data} />;
@@ -468,6 +462,9 @@ export default function FindingDetailsPage() {
             else if (item.template_id === "services.postgresqldatabase.subscriptions.id.servers") {
               return <PostgresServers  key={idx} data={item.data} />;
             }
+            else if (item.template_id === "services.rbac.subscriptions.id.custom_roles_report") { //completed ui done
+              return <CustomRolesReport key={idx} data={item.data} />;
+            }
             else if (item.template_id === "services.rbac.subscriptions.id.roles") { //yet to done
               return <RbacRoles  key={idx} data={item.data} />;
             }
@@ -477,6 +474,9 @@ export default function FindingDetailsPage() {
             else if (item.template_id === "services.securitycenter.subscriptions.id.compliance_results") {
               return <SecurityCenterComplianceResults  key={idx} data={item.data} />;
             }
+            else if (item.template_id === "services.securitycenter.subscriptions.id.pricings") { //completed ui done
+              return <Pricings key={idx} data={item.data} />;
+            }       
             else if (item.template_id === "services.securitycenter.subscriptions.id.regulatory_compliance_results") {
               return <SecurityCenterRegulatoryComplianceResults  key={idx} data={item.data} />;
             }
