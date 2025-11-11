@@ -43,14 +43,27 @@ const FindingCard = ({
           />
           <div className="text-left">
             {level !== "good" && flagged_items > 0 && checked_items > 0 ? (
-              <Link
-                href={`/Findings/${scanId}/${serviceName}/details/${encodeURIComponent(
-                  finding.key
-                )}?description=${encodeURIComponent(description)}`}
-                className="font-semibold text-white leading-relaxed text-blue-300 hover:underline"
-              >
-                {description}
-              </Link>
+              serviceName ? (
+                <Link
+                  href={`/Findings/${scanId}/${serviceName}/details/${encodeURIComponent(
+                    finding.key
+                  )}?description=${encodeURIComponent(description)}`}
+                  className="font-semibold text-white leading-relaxed text-blue-300 hover:underline"
+                >
+                  {description}
+                </Link>
+              ) : (
+                <Link
+                  href={`/dangerousfindings/${scanId}/${encodeURIComponent(
+                    (finding.service || "").toLowerCase()
+                  )}/${encodeURIComponent(
+                    finding.key || finding.finding_key || ""
+                  )}?description=${encodeURIComponent(description)}`}
+                  className="font-semibold text-white leading-relaxed text-blue-300 hover:underline"
+                >
+                  {description}
+                </Link>
+              )
             ) : (
               <h3 className="font-semibold text-white leading-relaxed">
                 {description}

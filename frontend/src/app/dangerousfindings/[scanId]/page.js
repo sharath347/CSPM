@@ -108,12 +108,11 @@ export default function DangerousFindingsPage() {
   // const findingsArray = data.dangerous_findings
   //   ? Object.entries(data.dangerous_findings)
   //   : [];
-  // Convert dangerous_findings object into array
-  const findingsArray = data.dangerous_findings
-    ? Object.entries(data.dangerous_findings).map(([key, value]) => ({
-        key,
-        ...value,
-      }))
+  // Normalize dangerous_findings to an array of finding objects
+  const findingsArray = Array.isArray(data.dangerous_findings)
+    ? data.dangerous_findings
+    : data.dangerous_findings
+    ? Object.values(data.dangerous_findings)
     : [];
 
   // Group by service

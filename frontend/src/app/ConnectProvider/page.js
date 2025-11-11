@@ -78,7 +78,7 @@ export default function ConnectProvidersPage() {
           CLOUD <span className="text-blue-700">SERVICES</span>
         </h2>
         <p className="text-gray-500 mb-7">
-          Connect your cloud account for security monitoring
+          Connect your cloud account for security posture
         </p>
 
         <div className="w-full max-w-lg border border-gray-600 rounded-2xl shadow-2xl p-8 space-y-6">

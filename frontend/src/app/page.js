@@ -3,6 +3,8 @@
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import Image from "next/image";
+import fortivestLogo from "../fortivest_logo.png";
 
 export default function Page() {
   const { data: session, status } = useSession();
@@ -24,6 +26,19 @@ export default function Page() {
   if (!session) {
     return (
       <main className="min-h-screen text-white flex flex-col items-center justify-center px-4">
+        <div className="mb-4 flex flex-col items-center">
+          <Image
+            src={fortivestLogo}
+            alt="Fortivest"
+            width={64}
+            height={64}
+            className="rounded-lg object-cover shadow bg-white/90 p-[3px]"
+            priority
+          />
+          <h1 className="text-2xl font-bold text-white mt-3 tracking-wider">
+            FORTIVEST
+          </h1>
+        </div>
         <h2 className="text-2xl text-red-700 tracking-[.6em] mb-3 pt-3">
           CLOUD <span className="text-blue-700">SERVICES</span>
         </h2>

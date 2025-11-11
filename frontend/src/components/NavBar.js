@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import { useSession, signOut } from "next-auth/react";
+import Image from "next/image";
+import fortivestLogo from "../fortivest_logo.png";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:5000";
@@ -85,10 +87,16 @@ const NavBar = ({ scanId }) => {
     >
       {/* Left Side: Logo + Menus */}
       <ul className="flex space-x-6 text-sm font-medium items-center">
-        <Link href={"/"} className="cursor-pointer">
-          <h2 className="text-lg text-red-700 tracking-[.4em]">
-            CLOUD <span className="text-blue-700">SERVICES</span>
-          </h2>
+        <Link href={"/"} className="cursor-pointer flex items-center gap-3">
+          <Image
+            src={fortivestLogo}
+            alt="FORTIVEST"
+            width={36}
+            height={36}
+            className="rounded-md object-cover bg-white/90 p-[2px] shadow"
+            priority
+          />
+          <h2 className="text-lg text-white tracking-[.35em]">FORTIVEST</h2>
         </Link>
 
         {Object.entries(serviceGroups).map(([group, services], idx, arr) => (
