@@ -1453,45 +1453,30 @@ export const DynamoDBTable = ({ table, tableId, region }) => {
   };
 
 // ---------------- Utility Components ----------------
-export const ResourceLink = ({ resourcePath, name, onClick }) => {
-  const handleClick = (e) => {
-    e.preventDefault();
-    if (onClick) {
-      onClick(resourcePath);
-    } else {
-      // Fallback to console log or other action
-      console.log('Navigate to:', resourcePath);
-      // You could also emit an event or use a state management solution
-      // window.dispatchEvent(new CustomEvent('navigateToResource', { detail: resourcePath }));
-    }
-  };
-
+export const ResourceLink = ({ resourcePath, name }) => {
   return (
-    <a 
-      href="#" 
-      onClick={handleClick}
-      className="text-blue-300 hover:text-blue-200 transition-colors cursor-pointer"
-    >
-      {name || resourcePath}
-    </a>
+    <span className="text-blue-300">
+      {name ?? resourcePath ?? "Unknown"}
+    </span>
   );
 };
 
+
 // Small helper for CIDR/IP lists
-export const IPGrants = ({ items }) => (
+export const IPGrants = ({ items = [] }) => (
   <ul>
     {items.map((item, idx) => (
-      <li key={idx}>{item.CIDR}</li>
+      <li key={idx}>{item?.CIDR ?? "N/A"}</li>
     ))}
   </ul>
 );
 
+
 // Show usage (resources attached to SG)
-export const SGResourceList = ({ usedBy, group, region, vpc }) => {
-  if (!usedBy || Object.keys(usedBy).length === 0) {
+export const SGResourceList = ({ usedBy = {}, region, vpc }) => {
+  if (!usedBy || typeof usedBy !== "object" || Object.keys(usedBy).length === 0) {
     return (
       <div className="flex items-center text-sm text-green-400 bg-green-900/20 px-3 py-2 rounded-lg">
-        <i className="fa fa-check-circle mr-2"></i>
         <span>This security group is not in use.</span>
       </div>
     );
@@ -1499,24 +1484,26 @@ export const SGResourceList = ({ usedBy, group, region, vpc }) => {
 
   return (
     <div className="space-y-4">
-      {Object.entries(usedBy).map(([service, resourceTypes]) => (
+      {Object.entries(usedBy || {}).map(([service, resourceTypes]) => (
         <div key={service} className="space-y-2">
-          {Object.entries(resourceTypes).map(([resourceType, resources]) => (
+          {Object.entries(resourceTypes || {}).map(([resourceType, resources]) => (
             <div key={resourceType} className="bg-gray-700 rounded-lg p-4">
               <h5 className="text-sm font-semibold text-gray-200 mb-3">
-                {service.charAt(0).toUpperCase() + service.slice(1)} {resourceType.charAt(0).toUpperCase() + resourceType.slice(1)}
-                <CountBadge count={resources.length} />
+                {service} {resourceType}
+                <CountBadge count={Array.isArray(resources) ? resources.length : 0} />
               </h5>
+
               <div className="space-y-1">
-                {resources.map((res) => (
-                  <div key={res.id || res.arn} className="flex items-center">
-                    <span className="w-2 h-2 bg-blue-400 rounded-full mr-2 flex-shrink-0"></span>
-                    <ResourceLink 
-                      resourcePath={`services.${service}.regions.${region}.vpcs.${vpc}.${resourceType}.${res.id}`}
-                      name={res.name || res.id}
-                    />
-                  </div>
-                ))}
+                {Array.isArray(resources) &&
+                  resources.map((res, idx) => (
+                    <div key={res?.id ?? res?.arn ?? idx} className="flex items-center">
+                      <span className="w-2 h-2 bg-blue-400 rounded-full mr-2" />
+                      <ResourceLink
+                        resourcePath={`services.${service}.regions.${region}.vpcs.${vpc}.${resourceType}.${res?.id}`}
+                        name={res?.name ?? res?.id ?? "Unnamed"}
+                      />
+                    </div>
+                  ))}
               </div>
             </div>
           ))}
@@ -1526,79 +1513,48 @@ export const SGResourceList = ({ usedBy, group, region, vpc }) => {
   );
 };
 
+
 //sg rule list
-export const SGRuleList = ({ rules, sgName, sgId, region, vpc }) => {
-  if (!rules) return <div>No rules defined.</div>;
+export const SGRuleList = ({ rules = {}, sgName }) => {
+  if (!rules || typeof rules !== "object") {
+    return <div>No rules defined.</div>;
+  }
 
   return (
     <>
-      {Object.entries(rules).map(([direction, rule]) => (
+      {Object.entries(rules || {}).map(([direction, rule]) => (
         <div key={direction} className="px-6 py-4 border-b border-gray-700">
           <h4 className="text-base font-semibold text-gray-200 mb-3">
-            {direction.charAt(0).toUpperCase() + direction.slice(1)} Rules
-            <CountBadge count={rule.count} />
+            {direction} Rules
+            <CountBadge count={rule?.count ?? 0} />
           </h4>
 
           <div className="space-y-4">
-          {Object.entries(rule.protocols).map(([protocol, protoData]) => (
+            {Object.entries(rule?.protocols || {}).map(([protocol, protoData]) => (
               <div key={protocol} className="bg-gray-700 rounded-lg p-4">
                 <h5 className="text-sm font-semibold text-gray-200 mb-3">{protocol}</h5>
-                <div className="space-y-3">
-                {Object.entries(protoData.ports).map(([port, portData]) => (
-                    <div key={port} className="bg-gray-800 rounded-lg p-3">
-                      <div className="text-sm font-medium text-blue-300 mb-2">
-                        {protocol === 'ICMP' ? 'Message types' : 'Ports'}: {port}
-                      </div>
 
-                      {portData.cidrs && portData.cidrs.length > 0 && (
-                        <div className="mb-2">
-                          <div className="text-xs font-medium text-gray-400 mb-1">IP addresses:</div>
-                          <div className="flex flex-wrap gap-1">
-                            {portData.cidrs.map((cidr, idx) => (
-                              <span key={idx} className="bg-gray-700 px-2 py-1 rounded text-xs text-blue-300 font-mono">
-                                {cidr.CIDR}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {portData.Ipv6Ranges && portData.Ipv6Ranges.length > 0 && (
-                        <div className="mb-2">
-                          <div className="text-xs font-medium text-gray-400 mb-1">IPv6 addresses:</div>
-                          <div className="flex flex-wrap gap-1">
-                            {portData.Ipv6Ranges.map((ipv6, idx) => (
-                              <span key={idx} className="bg-gray-700 px-2 py-1 rounded text-xs text-green-300 font-mono">
-                                {ipv6.CIDR}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {portData.security_groups && portData.security_groups.length > 0 && (
-                        <div>
-                          <div className="text-xs font-medium text-gray-400 mb-1">EC2 security groups:</div>
-                          <div className="flex flex-wrap gap-1">
-                          {portData.security_groups.map((sg, idx) => (
-                              <span key={idx} className="bg-gray-700 px-2 py-1 rounded text-xs text-yellow-300 font-mono">
-                              {sg.GroupName} ({sg.GroupId})
-                              </span>
-                          ))}
-                          </div>
-                        </div>
-                    )}
+                {Object.entries(protoData?.ports || {}).map(([port, portData]) => (
+                  <div key={port} className="bg-gray-800 rounded-lg p-3 mb-2">
+                    <div className="text-sm text-blue-300 mb-2">
+                      Ports: {port}
                     </div>
+
+                    {Array.isArray(portData?.cidrs) &&
+                      portData.cidrs.map((cidr, idx) => (
+                        <span key={idx} className="mr-2 text-xs text-blue-300">
+                          {cidr?.CIDR}
+                        </span>
+                      ))}
+                  </div>
                 ))}
-                </div>
-            </div>
-          ))}
+              </div>
+            ))}
           </div>
 
           {sgName === "default" && (
-            <div className="mt-3 flex items-center text-sm text-yellow-400 bg-yellow-900/20 px-3 py-2 rounded-lg">
-              <i className="fa fa-exclamation-triangle mr-2"></i>
-              <span>Default security groups should have no rules.</span>
+            <div className="mt-3 text-yellow-400 bg-yellow-900/20 px-3 py-2 rounded-lg">
+              Default security groups should have no rules.
             </div>
           )}
         </div>
@@ -1608,68 +1564,84 @@ export const SGRuleList = ({ rules, sgName, sgId, region, vpc }) => {
 };
 
 
+
 // Single SG component with boxed sections
 export const SecurityGroup = ({ sg, vpcId, region }) => {
-  // Helper function
   const valueOrNone = (value) => value || "None";
 
   return (
     <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden mb-6">
-      {/* Security Group Header */}
+      {/* Header */}
       <div className="bg-blue-600 px-6 py-4">
         <h4 className="text-lg font-semibold text-white">{sg.name}</h4>
       </div>
 
       {/* Information Section */}
       <div className="px-6 py-4 border-b border-gray-700">
-        <h4 className="text-base font-semibold text-gray-200 mb-4">Information</h4>
+        <h4 className="text-base font-semibold text-gray-200 mb-4">
+          Information
+        </h4>
+
         <div className="space-y-3">
           <div className="flex items-center text-sm text-gray-300">
             <span className="font-medium min-w-[140px]">ID:</span>
             <samp className="ml-2 bg-gray-700 px-2 py-1 rounded text-blue-300 font-mono text-xs">
               {valueOrNone(sg.id)}
             </samp>
-      </div>
-        
-        <div className="flex items-start text-sm text-gray-300">
-          <span className="font-medium min-w-[140px]">ARN:</span>
-          <samp className="ml-2 bg-gray-700 px-2 py-1 rounded text-blue-300 font-mono text-xs break-all">
-            {valueOrNone(sg.arn)}
-          </samp>
-    </div>
+          </div>
 
-        <div className="flex items-center text-sm text-gray-300">
-          <span className="font-medium min-w-[140px]">Region:</span>
-          <samp className="ml-2 bg-gray-700 px-2 py-1 rounded text-blue-300 font-mono text-xs">
-            {region}
-          </samp>
-    </div>
+          <div className="flex items-start text-sm text-gray-300">
+            <span className="font-medium min-w-[140px]">ARN:</span>
+            <samp className="ml-2 bg-gray-700 px-2 py-1 rounded text-blue-300 font-mono text-xs break-all">
+              {valueOrNone(sg.arn)}
+            </samp>
+          </div>
 
-        <div className="flex items-center text-sm text-gray-300">
-          <span className="font-medium min-w-[140px]">VPC:</span>
-          <samp className="ml-2 bg-gray-700 px-2 py-1 rounded text-blue-300 font-mono text-xs">
-            {vpcId}
-          </samp>
+          <div className="flex items-center text-sm text-gray-300">
+            <span className="font-medium min-w-[140px]">Region:</span>
+            <samp className="ml-2 bg-gray-700 px-2 py-1 rounded text-blue-300 font-mono text-xs">
+              {region}
+            </samp>
+          </div>
+
+          <div className="flex items-center text-sm text-gray-300">
+            <span className="font-medium min-w-[140px]">VPC:</span>
+            <samp className="ml-2 bg-gray-700 px-2 py-1 rounded text-blue-300 font-mono text-xs">
+              {vpcId}
+            </samp>
+          </div>
+
+          <div className="flex items-start text-sm text-gray-300">
+            <span className="font-medium min-w-[140px]">Description:</span>
+            <samp className="ml-2 bg-gray-700 px-2 py-1 rounded text-blue-300 font-mono text-xs break-all">
+              {valueOrNone(sg.description)}
+            </samp>
+          </div>
         </div>
-        
-        <div className="flex items-start text-sm text-gray-300">
-          <span className="font-medium min-w-[140px]">Description:</span>
-          <samp className="ml-2 bg-gray-700 px-2 py-1 rounded text-blue-300 font-mono text-xs break-all">
-            {valueOrNone(sg.description)}
-          </samp>
-        </div>
+      </div>
+
+      {/* Rules Section */}
+      <SGRuleList
+        rules={sg.rules}
+        sgName={sg.name}
+        sgId={sg.id}
+        region={region}
+        vpc={vpcId}
+      />
+
+      {/* Usage Section */}
+      <div className="px-6 py-4">
+        <h4 className="text-base font-semibold text-gray-200 mb-4">
+          Usage
+        </h4>
+        <SGResourceList
+          usedBy={sg.used_by}
+          group={sg.id}
+          region={region}
+          vpc={vpcId}
+        />
       </div>
     </div>
-
-    {/* Rules Section */}
-    <SGRuleList rules={sg.rules} sgName={sg.name} sgId={sg.id} region={region} vpc={vpcId} />
-
-    {/* Usage Section */}
-    <div className="px-6 py-4">
-      <h4 className="text-base font-semibold text-gray-200 mb-4">Usage</h4>
-      <SGResourceList usedBy={sg.used_by} group={sg.id} region={region} vpc={vpcId} />
-    </div>
-  </div>
   );
 };
 
